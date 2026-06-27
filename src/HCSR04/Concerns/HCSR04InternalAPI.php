@@ -22,6 +22,10 @@ trait HCSR04InternalAPI
         $this->end_time = 0;
         $this->gpio->trig()->low();
         usleep(2);
+
+        // Discard any leftover/spurious edges so this capture starts from an
+        // empty FIFO. Otherwise a stale edge shifts every rising/falling pair.
+        $this->gpio->echo()->flush();
     }
 
     protected function trigger(): void
@@ -62,8 +66,10 @@ trait HCSR04InternalAPI
     protected function wait(int $deadline_ns = -1): void
     {
         if ($deadline_ns == -1) {
-            /** @var EdgeRisingEvent $event */
-            $event = $this->gpio->echo()->listen();
+            do {
+                $event = $this->gpio->echo()->listen();
+            } while (! $event instanceof EdgeRisingEvent);
+
             $this->start_time = $event->timestamp_ns;
         } else {
             $wait_start = hrtime(true);
@@ -84,8 +90,10 @@ trait HCSR04InternalAPI
     protected function echo(int $deadline_ns = -1): void
     {
         if ($deadline_ns == -1) {
-            /** @var EdgeFallingEvent $event */
-            $event = $this->gpio->echo()->listen();
+            do {
+                $event = $this->gpio->echo()->listen();
+            } while (! $event instanceof EdgeFallingEvent);
+
             $this->end_time = $event->timestamp_ns;
         } else {
             $wait_start = hrtime(true);

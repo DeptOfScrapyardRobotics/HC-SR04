@@ -2,7 +2,7 @@
     "name": "dept-of-scrapyard-robotics/hc-sr04",
     "description": "Drive HC-SR04 ultrasonic distance sensors over GPIO with PHP",
     "type": "library",
-    "version": "0.4.3",
+    "version": "0.4.4",
     "keywords": ["framework", "scrapyard-io"],
     "license": "MIT",
     "homepage": "https://dosr.projectsaturnstudios.com",
